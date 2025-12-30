@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 
+// Get user data using userId
 export const getUserData = async (req, res) => {
     try {
         const { userId } = req.auth()
@@ -17,6 +18,41 @@ export const getUserData = async (req, res) => {
             success: true,
             user
         })
+    } catch (error) {
+        console.log(error)
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+// Update user data
+export const updateUserData = async (req, res) => {
+    try {
+        const { userId } = req.auth()
+        const { username, bio, location, full_name } = req.body
+
+        const tempUser = await User.findById(userId)
+
+        !username && (username = tempUser.username)
+
+        if (tempUser.username !== username) {
+            const user = User.findOne({username})
+
+            if (user) {
+                // We will not change the username if it is already taken
+                username = tempUser.username
+            }
+        }
+
+        const updatedData = {
+            username,
+            bio,
+            location,
+            full_name
+        }
+
     } catch (error) {
         console.log(error)
         res.json({
